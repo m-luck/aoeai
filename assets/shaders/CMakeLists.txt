@@ -1,4 +1,0 @@
-install(DIRECTORY "."
-	DESTINATION "${ASSET_DIR}/shaders"
-	FILES_MATCHING PATTERN "*.glsl"
-)
