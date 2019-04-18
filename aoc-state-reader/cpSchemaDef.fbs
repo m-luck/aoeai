@@ -96,6 +96,8 @@ table PlayerInfo {
 
 table PlayerObjects {
     playerId: uint8;
+		mainSelected: CommonObjectInfo;
+		allSelected: [CommonObjectInfo];
 	buildings: [Building];
 	units: [Unit];
 	mapObjects: [MapObject];// every mapObjectTickInterval this will contain all trees etc
