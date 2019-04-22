@@ -42,7 +42,7 @@ unsigned int baseAddress = 0;
 unsigned int worldPOffset = 0x2B7668;
 unsigned int inGameOffset = 0x283CC0;
 unsigned int recDetectOffset = 0x3A52E4;// 3 =  rec, 4 = sp
-unsigned int selectedUnit = 0x1c0;
+unsigned int selectedUnitOffset = 0x1c0;
 
 
 
@@ -77,9 +77,44 @@ volatile uint8_t * volatile finishDetect; //a pointer to either the place for sp
 uint8_t finishDetectIsFinish; // what we expect if the game has indeed finished
 volatile int * volatile gameSpeedupAllow; //loation to change to allow speed up of game (also disables pause)
 volatile unsigned char * volatile jumpSlowpokeRecCode; // location of the slowpoke asm to change
+volatile uint8_t * volatile selectedUnit;
 unsigned char disableSlowpokeAsm = (unsigned char)0xEB;
 unsigned char originalSlowpokeAsm = (unsigned char)0x74;
 
+
+// if name == 'main':
+//     import time
+//     proc_name = "AoK HD.exe"
+//     pm.load_process(proc_name)
+//     game = Game()
+//     if game is not None:
+//         t = game.update()
+//     ##print(game.pov.resources.values[0]) # food
+//     #print(game.pov.resources.values[1]) # Wood
+
+//     p = game.pov  # p = player 
+//     score = 0
+//     # Military - Military score is 20% of the resource value (cost) of all enemy units and buildings each player destroyed or converted.
+//     score += p.resources.values[170]0.2 # units value razed
+//     score += p.resources.values[172]0.2 # buildings value razed
+
+//     # Economy score is 10% of all resources each player currently has or has paid in tribute,
+//     # Reousrces
+//     score += p.resources.values[0]*0.1 + p.resources.values[1] * 0.1 + p.resources.values[2] *0.1 + p.resources.values[3] *0.1
+//     # plus 20% of the resource value of surviving units and standing buildings (except Castles or Wonders).
+//     score += p.resources.values[164] * 0.2 
+//     score += p.resources.values[165] * 0.2
+//     # Units TODO
+
+//     # Technology score is 20% of the resource value of every technology each player has researched, plus 10 points for every 1% of the map explored.
+//     score += p.resources.values[99] * 0.2
+//     # 10 for 1% of the map   Note that this is approximation! It can have numbers after decimal point 91.5%
+//     score += p.resources.values[22] * 10
+
+//     #Society score is 20% of the cost of the Castles and Wonders each player has constructed.
+//     # NONE already calculated in Enconomy??
+//     score += p.resources.values[184] * 0.2
+//     print(score)
 
 
 //this just sets up commonly used pointers so we only have to do this once
@@ -101,9 +136,8 @@ void normalisePointers() {
 	recDetect = (uint8_t *) baseAddress + recDetectOffset;
 	gameSpeedupAllow = (int *)(baseAddress + 0x391208);
 	jumpSlowpokeRecCode = (unsigned char *)(baseAddress + 0xc916);
+  selectedUnit = (pointer)(baseAddress + selectedUnitOffset);
 	setSpeedupValues();
-
-	
 }
 
 
