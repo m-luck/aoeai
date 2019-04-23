@@ -1,0 +1,140 @@
+namespace AOC;
+
+struct Pos {
+	x: float32;
+	y: float32;
+	z: float32;
+}
+
+struct UnitQueue {
+  unitType: short;
+  unitCount: short;
+}
+
+struct UnitTraining {
+  unitType: short;
+  timer: float;
+}
+struct MarketCoefficients {
+  wood: float;
+  food: float;
+  stone: float;
+}
+
+struct Damage {
+  gameTick: uint32;
+  attackerId: int32; //the attacking unit
+  projectileId: uint32; // the projectile id used - 0 = Not a projectile
+  damagedId: int32; // id of the damage receiver
+  damageDone: float; // how much damage (this might be more than the total hp left on the target)  
+}
+
+struct ProjectileFire {
+  gameTick: uint32;
+  projectileId: uint32;//this is our id - increments globally for all projectiles
+  sourceId: int32;//id of the firer
+  targetId: int32;//id of the target - if 0 then no target (i.e. attack ground)
+  type: short;// object type of the projectile
+  isPrimary: bool; //is this a primary or secondary projectile
+}
+
+enum Restriction : byte {All, InList}
+enum ObjectState : byte {Ready, Founded, Alive, Dying, Dead, Unknown1, Unknown2, Doppleganger}
+enum TechState : short {CantResearch = -1, CanResearchLater, CanResearch, Researching, Researched}
+
+enum ActionState: byte {None, Done, Wait, Search, GoTo, Follow, Attack, GatherBuildAttack, Dropoff, Turn, Delay, Move, ChopTree, Failed, Invalidated, MoveNoSearch}
+
+enum PlayerState: byte{Playing, Winner, Resigned, Defeated}
+
+table ConfigMessage {
+	tickInterval: uint32 = 500; // how many game ms should pass between each normal socket message
+	mapObjectTickInterval: uint32 = 15000; // how many game ms should pass between each map object message(added to normal messages - trees etc)
+	updateCycles: int32 = 1; // how many update cycles to loop through - this is effectively a way of speeding up games. It also has the odd effect that pausing won't entirely stop the game. Set to <0 to loop through all updates in one go (fastest possible, no rendering will happen)
+	playerRestriction: Restriction = All;
+	playerRestrictV: [byte];
+	objectRestriction: Restriction = All; 
+	objectRestrictV: [uint32];// restrict to a certain class of objects (10, 70, 80 etc)
+}
+
+
+
+table GameMessage {
+  tick: uint32;
+  instanceGameNumber: uint32;
+  finished: bool;
+  marketCoefficients: MarketCoefficients;
+  mapName: string;
+  players: [PlayerInfo];
+  objects: [PlayerObjects];
+  projectilesFired: [ProjectileFire];
+  damages: [Damage];
+}
+
+table Tech {
+  techIdIndex : short;
+  techIdGame: short;
+  techState : TechState;
+  timePassed : float;
+}
+
+table PlayerInfo {
+	playerId: uint8;
+	playerName: string;
+	playerState: PlayerState;
+	food: float32;
+	wood: float32;
+	stone: float32;
+	gold: float32;
+	headroom: float32;
+	population: float32;
+	populationCap: float32;
+	civilianPopulation: float32;
+	militaryPopulation: float32;
+	percentMapExplored: float32;
+	techs : [Tech];
+	mainSelected: int32;
+}
+
+table PlayerObjects {
+	playerId: uint8;
+	buildings: [Building];
+	units: [Unit];
+	mapObjects: [MapObject];// every mapObjectTickInterval this will contain all trees etc
+}
+
+table CommonObjectInfo {
+  objectId: int32;
+	objectClass: uint8;
+	objectType: short;
+	objectTypeName: string;
+	objectState: ObjectState;
+	pos: Pos;
+	hp: float32;
+	maxHp: float32;
+	resourceType: int16;
+	resourceAmount: float32;
+}
+
+
+table Building {
+	common: CommonObjectInfo;
+	researchingTechId: short;
+	queue: [UnitQueue];
+	training: UnitTraining;
+
+}
+
+table Unit {
+    common: CommonObjectInfo;
+    actionState: ActionState;//we will always include this, None or Wait is idle (effectively)
+    actionTargetId: int32;
+    actionTargetPos: Pos;
+}
+
+table MapObject {
+    common: CommonObjectInfo;
+}
+
+
+root_type GameMessage;
+root_type ConfigMessage;
