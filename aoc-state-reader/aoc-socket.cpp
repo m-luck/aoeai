@@ -77,7 +77,7 @@ volatile uint8_t * volatile finishDetect; //a pointer to either the place for sp
 uint8_t finishDetectIsFinish; // what we expect if the game has indeed finished
 volatile int * volatile gameSpeedupAllow; //loation to change to allow speed up of game (also disables pause)
 volatile unsigned char * volatile jumpSlowpokeRecCode; // location of the slowpoke asm to change
-volatile uint8_t * volatile selectedUnit;
+// volatile uint8_t * volatile selectedUnit;
 unsigned char disableSlowpokeAsm = (unsigned char)0xEB;
 unsigned char originalSlowpokeAsm = (unsigned char)0x74;
 
@@ -136,7 +136,7 @@ void normalisePointers() {
 	recDetect = (uint8_t *) baseAddress + recDetectOffset;
 	gameSpeedupAllow = (int *)(baseAddress + 0x391208);
 	jumpSlowpokeRecCode = (unsigned char *)(baseAddress + 0xc916);
-  selectedUnit = (pointer)(baseAddress + selectedUnitOffset);
+  // selectedUnit = (pointer)(baseAddress + selectedUnitOffset);
 	setSpeedupValues();
 }
 
@@ -704,7 +704,6 @@ shared_ptr<WsServer::OutMessage> buildMessage(unsigned int gt) {
 	gmBuilder.add_finished(isFinished);
 	gmBuilder.add_marketCoefficients(&mc);
 	gmBuilder.add_mapName(mapnameB);
-	
 	gmBuilder.add_players(players);
 	gmBuilder.add_objects(playerOs);
 	gmBuilder.add_projectilesFired(projectilesFired);
