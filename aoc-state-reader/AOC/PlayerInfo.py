@@ -129,7 +129,14 @@ class PlayerInfo(object):
             return self._tab.VectorLen(o)
         return 0
 
-def PlayerInfoStart(builder): builder.StartObject(14)
+    # PlayerInfo
+    def MainSelected(self):
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(32))
+        if o != 0:
+            return self._tab.Get(flatbuffers.number_types.Int32Flags, o + self._tab.Pos)
+        return 0
+
+def PlayerInfoStart(builder): builder.StartObject(15)
 def PlayerInfoAddPlayerId(builder, playerId): builder.PrependUint8Slot(0, playerId, 0)
 def PlayerInfoAddPlayerName(builder, playerName): builder.PrependUOffsetTRelativeSlot(1, flatbuffers.number_types.UOffsetTFlags.py_type(playerName), 0)
 def PlayerInfoAddPlayerState(builder, playerState): builder.PrependInt8Slot(2, playerState, 0)
@@ -145,4 +152,5 @@ def PlayerInfoAddMilitaryPopulation(builder, militaryPopulation): builder.Prepen
 def PlayerInfoAddPercentMapExplored(builder, percentMapExplored): builder.PrependFloat32Slot(12, percentMapExplored, 0.0)
 def PlayerInfoAddTechs(builder, techs): builder.PrependUOffsetTRelativeSlot(13, flatbuffers.number_types.UOffsetTFlags.py_type(techs), 0)
 def PlayerInfoStartTechsVector(builder, numElems): return builder.StartVector(4, numElems, 4)
+def PlayerInfoAddMainSelected(builder, mainSelected): builder.PrependInt32Slot(14, mainSelected, 0)
 def PlayerInfoEnd(builder): return builder.EndObject()

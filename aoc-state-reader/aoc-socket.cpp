@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "aoc-socket.h"
 #include "aoc-structs.h"
+#include <stdint.h>
 #include <iostream>
 using namespace std;
 using namespace AOC;
@@ -750,6 +751,7 @@ flatbuffers::Offset<PlayerInfo> buildPlayerInfo(int playerId, pointer &pAreaP, f
 		break;
 	}
 
+	int32_t *mainUnitSelectedP = pointer(*pAreaP + 0x1c4);
 	
 	auto pName = builder.CreateString(name);
 
@@ -769,6 +771,7 @@ flatbuffers::Offset<PlayerInfo> buildPlayerInfo(int playerId, pointer &pAreaP, f
 	pBuilder.add_militaryPopulation(ls.militaryPopulation);
 	pBuilder.add_percentMapExplored(ls.percentMapExplored);
 	pBuilder.add_techs(techs);
+	pBuilder.add_mainSelected(mainUnitSelectedP)
 	return pBuilder.Finish();
 
 }

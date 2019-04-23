@@ -92,11 +92,11 @@ table PlayerInfo {
 	militaryPopulation: float32;
 	percentMapExplored: float32;
 	techs : [Tech];
+	mainSelected: int32;
 }
 
 table PlayerObjects {
 	playerId: uint8;
-	mainSelected: CommonObjectInfo;
 	buildings: [Building];
 	units: [Unit];
 	mapObjects: [MapObject];// every mapObjectTickInterval this will contain all trees etc

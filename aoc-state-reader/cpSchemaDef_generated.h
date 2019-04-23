@@ -799,7 +799,8 @@ struct PlayerInfo FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
     VT_CIVILIANPOPULATION = 24,
     VT_MILITARYPOPULATION = 26,
     VT_PERCENTMAPEXPLORED = 28,
-    VT_TECHS = 30
+    VT_TECHS = 30,
+    VT_MAINSELECTED = 32
   };
   uint8_t playerId() const {
     return GetField<uint8_t>(VT_PLAYERID, 0);
@@ -843,6 +844,9 @@ struct PlayerInfo FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   const flatbuffers::Vector<flatbuffers::Offset<Tech>> *techs() const {
     return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<Tech>> *>(VT_TECHS);
   }
+  int32_t mainSelected() const {
+    return GetField<int32_t>(VT_MAINSELECTED, 0);
+  }
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<uint8_t>(verifier, VT_PLAYERID) &&
@@ -862,6 +866,7 @@ struct PlayerInfo FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
            VerifyOffset(verifier, VT_TECHS) &&
            verifier.VerifyVector(techs()) &&
            verifier.VerifyVectorOfTables(techs()) &&
+           VerifyField<int32_t>(verifier, VT_MAINSELECTED) &&
            verifier.EndTable();
   }
 };
@@ -911,6 +916,9 @@ struct PlayerInfoBuilder {
   void add_techs(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<Tech>>> techs) {
     fbb_.AddOffset(PlayerInfo::VT_TECHS, techs);
   }
+  void add_mainSelected(int32_t mainSelected) {
+    fbb_.AddElement<int32_t>(PlayerInfo::VT_MAINSELECTED, mainSelected, 0);
+  }
   explicit PlayerInfoBuilder(flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
@@ -938,8 +946,10 @@ inline flatbuffers::Offset<PlayerInfo> CreatePlayerInfo(
     float civilianPopulation = 0.0f,
     float militaryPopulation = 0.0f,
     float percentMapExplored = 0.0f,
-    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<Tech>>> techs = 0) {
+    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<Tech>>> techs = 0,
+    int32_t mainSelected = 0) {
   PlayerInfoBuilder builder_(_fbb);
+  builder_.add_mainSelected(mainSelected);
   builder_.add_techs(techs);
   builder_.add_percentMapExplored(percentMapExplored);
   builder_.add_militaryPopulation(militaryPopulation);
@@ -972,7 +982,8 @@ inline flatbuffers::Offset<PlayerInfo> CreatePlayerInfoDirect(
     float civilianPopulation = 0.0f,
     float militaryPopulation = 0.0f,
     float percentMapExplored = 0.0f,
-    const std::vector<flatbuffers::Offset<Tech>> *techs = nullptr) {
+    const std::vector<flatbuffers::Offset<Tech>> *techs = nullptr,
+    int32_t mainSelected = 0) {
   return AOC::CreatePlayerInfo(
       _fbb,
       playerId,
@@ -988,7 +999,8 @@ inline flatbuffers::Offset<PlayerInfo> CreatePlayerInfoDirect(
       civilianPopulation,
       militaryPopulation,
       percentMapExplored,
-      techs ? _fbb.CreateVector<flatbuffers::Offset<Tech>>(*techs) : 0);
+      techs ? _fbb.CreateVector<flatbuffers::Offset<Tech>>(*techs) : 0,
+      mainSelected);
 }
 
 struct PlayerObjects FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {

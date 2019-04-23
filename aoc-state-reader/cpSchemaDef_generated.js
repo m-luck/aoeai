@@ -1288,10 +1288,18 @@ AOC.PlayerInfo.prototype.techsLength = function() {
 };
 
 /**
+ * @returns {number}
+ */
+AOC.PlayerInfo.prototype.mainSelected = function() {
+  var offset = this.bb.__offset(this.bb_pos, 32);
+  return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
+};
+
+/**
  * @param {flatbuffers.Builder} builder
  */
 AOC.PlayerInfo.startPlayerInfo = function(builder) {
-  builder.startObject(14);
+  builder.startObject(15);
 };
 
 /**
@@ -1425,6 +1433,14 @@ AOC.PlayerInfo.createTechsVector = function(builder, data) {
  */
 AOC.PlayerInfo.startTechsVector = function(builder, numElems) {
   builder.startVector(4, numElems, 4);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} mainSelected
+ */
+AOC.PlayerInfo.addMainSelected = function(builder, mainSelected) {
+  builder.addFieldInt32(14, mainSelected, 0);
 };
 
 /**
