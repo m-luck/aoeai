@@ -1,0 +1,4 @@
+[submodule "aoc-state-reader"]
+	path = aoc-state-reader
+	url = https://github.com/bowswung/aoc-state-reader.git
+	branch = implSelected
