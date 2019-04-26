@@ -60,31 +60,31 @@ if __name__ == "__main__":
     file = open("coords", "a+")
     finished = False
     n = 1
+    time.sleep(6) # Get situated!
     while n <= TRIALS and finished == False:
-        x = random.randint(1109,1365)
-        y = random.randint(100,355)
-        moveTo(x,y)
-        pyautogui.click()  
-        time.sleep(1)
-        win32gui.Rectangle(hdc, 1109, 100, 1113, 356) # Left Top Right Bottom
-        win32gui.Rectangle(hdc, 1109, 100, 1365, 105) # Left Top Right Bottom
-        win32gui.Rectangle(hdc, 1109, 357, 1365, 359) # Left Top Right Bottom
-        timeStamp = time.strftime('%H-%M-%S')
-        html = driver.page_source
-        soup = BeautifulSoup(html, 'html.parser')
-        evolving = soup.find(id="evolving_value").get_text()
-        x = x - 1109
-        y = y - 100
         with mss.mss() as sct:
+            x = random.randint(1109,1365)
+            y = random.randint(100,355)
             # The screen part to capture
             monitor = {"top": 100, "left": 1109, "width": 256, "height": 256}
-            output = "s-{t}_{n}_{x}-{y}-{e}.png".format(**monitor, n=n, t=timeStamp, x=x, y=y, e=evolving)
+            x = x - 1109
+            y = y - 100
+            timeStamp = time.strftime('%H-%M-%S')
+            time.sleep(1)
             # Grab the data
             sct_img = sct.grab(monitor)
             # Save to the picture file
+            moveTo(x,y)
+            time.sleep(0.2)
+            pyautogui.click()  
+            html = driver.page_source
+            soup = BeautifulSoup(html, 'html.parser')
+            evolving = soup.find(id="evolving_value").get_text()
+            output = "s-{t}_{n}_{x}-{y}-{e}.png".format(**monitor, n=n, t=timeStamp, x=x, y=y, e=evolving)
             mss.tools.to_png(sct_img.rgb, sct_img.size, output=output)
+            file.write(timeStamp+":"+str(n)+":"+str(x)+","+str(y)+","+str(evolving)+"\n")
             print(output)        
-        file.write(timeStamp+":"+str(n)+":"+str(x)+","+str(y)+","+str(evolving)+"\n")
-        n+=1
+            n+=1
+        time.sleep(1)
     file.close()
     # asyncio.run(main())
