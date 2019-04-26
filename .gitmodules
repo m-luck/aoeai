@@ -1,4 +1,4 @@
 [submodule "SR"]
 	path = SR
 	url = https://github.com/bowswung/aoc-state-reader.git
-	branch = develop
+	branch = selectedUnit
