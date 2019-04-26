@@ -9,6 +9,7 @@ verify_ssl = true
 selenium = "*"
 pygame = "*"
 opencv-python = "*"
+beautifulsoup4 = "*"
 
 [requires]
 python_version = "3.7"
