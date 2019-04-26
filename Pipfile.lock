@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "68ca68f76bb01298add49965342f737fde7f259b073a157b1be6055e8741f465"
+            "sha256": "85f6ff049ef3ba31db7dcf83814c67206649b7ade17a32e1153199df9f55e3bf"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -24,6 +24,14 @@
             ],
             "index": "pypi",
             "version": "==4.7.1"
+        },
+        "mss": {
+            "hashes": [
+                "sha256:1c40be00bbe2c9d079cc51338afab21d3adf3ddfb88b91b13bc73bdc74a8d411",
+                "sha256:c294480a0e7f84bd0c16d5a22edc8a670adbac1bd889e9463dee6c6ea4226f96"
+            ],
+            "index": "pypi",
+            "version": "==4.0.3"
         },
         "numpy": {
             "hashes": [
@@ -137,6 +145,27 @@
                 "sha256:a9645efd62b9fc1c7cad8ed93e162aad4c6bfd90e143966ddd4099b78cd244be"
             ],
             "version": "==1.25.1"
+        },
+        "win32core": {
+            "hashes": [
+                "sha256:57ebeea7ba14117713ddca3db6bdca57703b81792c5c7f743f35b9313461532a",
+                "sha256:88e293e959dc5c50af3a9053cc7ac35273936080752316d4231b345cbc3c1b54",
+                "sha256:92fafd29427a9f1cacba2017f2a24ff31cf09c2e57ac6990703248ab4bb460d1",
+                "sha256:934ab3759403909327c8c8c85d3cee15da67282311f328591d74a2f25260b0f6",
+                "sha256:d2132324bd38704f040fbd9e23bc1ecb0f4bcb51354e9f2a93135bdc336d667d",
+                "sha256:face47b84e63fd9e9d8457d5917ca83b3d1ceaf07503ab3ca9ef426a2ee119f9"
+            ],
+            "version": "==221.36"
+        },
+        "win32gui": {
+            "hashes": [
+                "sha256:1578249c3bffca9f606749e99f0526c4b976f05727640e2e894d446f23d31ccb",
+                "sha256:286553c910cfbe99826260863b18d9633836e0399320a58d52f844c749307bdf",
+                "sha256:ec864ef3dbcac00410268f80e39df110e41518afc8810cad00125be114ea1941",
+                "sha256:f1ebf9c96f3726af207fd12882a7625974c22988ae08a29c34c693e23eb8a7c6"
+            ],
+            "index": "pypi",
+            "version": "==221.6"
         }
     },
     "develop": {}

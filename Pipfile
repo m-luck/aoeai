@@ -10,6 +10,7 @@ selenium = "*"
 pygame = "*"
 opencv-python = "*"
 beautifulsoup4 = "*"
+win32gui = "*"
 
 [requires]
 python_version = "3.7"

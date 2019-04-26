@@ -13,5 +13,5 @@ while True:
     html = driver.page_source
     soup = BeautifulSoup(html, 'html.parser')
     evolving = soup.find(id="evolving_value")
-    print(evolving)
+    print(evolving.get_text())
 
