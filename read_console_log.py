@@ -1,13 +1,13 @@
 from selenium import webdriver
-from selenium.webdriver.common.desired_capabilities import DesiredCapabilities    
+import time
 
-capabilities = DesiredCapabilities.CHROME
-capabilities['loggingPrefs'] = { 'browser':'ALL' }
+driver = webdriver.Chrome(executable_path='C:/chromedriver.exe')
 
-driver = webdriver.Chrome(desired_capabilities=capabilities)
-
-driver.get('http://foo.com')
+driver.get('file:///C:/aoeai/SR/browserTest.html')
 
 # print console log messages
-for entry in driver.get_log('browser'):
-    print entry
+
+while True:
+    time.sleep(1) 
+    for entry in driver.get_log('browser'):
+        print(entry)
