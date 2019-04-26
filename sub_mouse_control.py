@@ -11,9 +11,15 @@ import mss.tools
 
 from typing import Callable
 from screeninfo import get_monitors
+from selenium import webdriver
+from bs4 import BeautifulSoup
 
 
 TRIALS = 10
+
+driver = webdriver.Chrome(executable_path='C:/chromedriver.exe')
+
+driver.get('file:///C:/aoeai/SR/browserTest.html')
 # def fun(str):
 #     print(str)
 
@@ -46,6 +52,7 @@ def getScreenDims():
     height = info.current_h
     print(width, height)
     return width, height
+    #218649568
 
 if __name__ == "__main__":
     pygame.init()
@@ -54,26 +61,30 @@ if __name__ == "__main__":
     finished = False
     n = 1
     while n <= TRIALS and finished == False:
-        for event in pygame.event.get():
-            if event.type == pygame.KEYDOWN:
-                finished = True
-        x = random.randint(1,width)
-        y = random.randint(1,height)
+        x = random.randint(1109,1365)
+        y = random.randint(100,355)
         moveTo(x,y)
+        pyautogui.click()  
         time.sleep(1)
-        win32gui.Rectangle(hdc, 600, 100, 605, 300) # Left Top Right Bottom
-        win32gui.Rectangle(hdc, 700, 100, 705, 300) # Left Top Right Bottom
-        timeStamp = time.strftime('%H_%M_%S')
-        file.write(timeStamp+":"+str(n)+":"+str(x)+","+str(y)+"\n")
+        win32gui.Rectangle(hdc, 1109, 100, 1113, 356) # Left Top Right Bottom
+        win32gui.Rectangle(hdc, 1109, 100, 1365, 105) # Left Top Right Bottom
+        win32gui.Rectangle(hdc, 1109, 357, 1365, 359) # Left Top Right Bottom
+        timeStamp = time.strftime('%H-%M-%S')
+        html = driver.page_source
+        soup = BeautifulSoup(html, 'html.parser')
+        evolving = soup.find(id="evolving_value").get_text()
+        x = x - 1109
+        y = y - 100
         with mss.mss() as sct:
             # The screen part to capture
-            monitor = {"top": 160, "left": 160, "width": 160, "height": 135}
-            output = "sct-{top}x{left}_{width}x{height}_{n}_{t}.png".format(**monitor, n=n, t=timeStamp)
+            monitor = {"top": 100, "left": 1109, "width": 256, "height": 256}
+            output = "s-{t}_{n}_{x}-{y}-{e}.png".format(**monitor, n=n, t=timeStamp, x=x, y=y, e=evolving)
             # Grab the data
             sct_img = sct.grab(monitor)
             # Save to the picture file
             mss.tools.to_png(sct_img.rgb, sct_img.size, output=output)
             print(output)        
+        file.write(timeStamp+":"+str(n)+":"+str(x)+","+str(y)+","+str(evolving)+"\n")
         n+=1
     file.close()
     # asyncio.run(main())
