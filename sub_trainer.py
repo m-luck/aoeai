@@ -1,4 +1,5 @@
 import numpy as np
+import sys
 import torch
 import torchvision
 import torch.nn.functional as F
@@ -7,10 +8,17 @@ import time
 from torch.autograd import Variable
 from torch.utils.data.sampler import SubsetRandomSampler
 
+# Internal import.
+import sub_data_setter
+
 seed = 0xDEADBEEF # Wagyu.
 
 np.random.seed(seed)
 torch.manual_seed(seed)
+
+device = torch.device("cuda" if torch.cuda.is_available() 
+                                  else "cpu")
+print(device)
 
 selected = ('NONE', 'MAN-AT-ARMS', 'PIKEMAN', 'SKIRMISHER', 'SCOUT', 'KNIGHT')
 x = None
@@ -19,7 +27,7 @@ y = None
 class ScoutCNN(torch.nn.Module):
     
     def __init__(self):
-        super(SimpleCNN, self).__init__()
+        super(ScoutCNN, self).__init__()
         
         # Remember that image size is 256, 256. Grayscale, so 1 channel.
         # Our batch shape for input is (1, 256, 256)
@@ -75,12 +83,9 @@ def get_loader(csv_path, batch_size):
     '''
     Takes in a dataset and batch size for loading. 
     '''
-    unit_trials = UnitClickData(csv_path)
+    unit_trials = sub_data_setter.UnitClickData(csv_path)
     loader = torch.utils.data.DataLoader(dataset=unit_trials, batch_size=batch_size, shuffle=True, num_workers=2)
     return(loader)
-
-test_loader = get_loader(testset_csv, 4)
-validation_loader = get_loader(valset_csv, 128)
 
 def createLossAndOptimizer(net, learning_rate=0.001):
     loss = torch.nn.CrossEntropyLoss()
@@ -88,7 +93,7 @@ def createLossAndOptimizer(net, learning_rate=0.001):
     return(loss, optimizer)
 
 
-def train(net, batch_size, n_epochs, learning_rate):
+def train(net, batch_size, n_epochs, learning_rate, trainCSV, valCSV, testCSV):
     
     #Print all of the hyperparameters of the training iteration:
     print("===== HYPERPARAMETERS =====")
@@ -98,7 +103,12 @@ def train(net, batch_size, n_epochs, learning_rate):
     print("=" * 30)
     
     #Get training data
-    train_loader = get_train_loader(batch_size)
+    train_loader = get_train_loader(trainCSV, batch_size)
+    validation_loader = get_loader(valCSV, 128)
+    test_loader = get_loader(testCSV, 4)
+
+    test_loader = get_loader(testset_csv, 4)
+
     n_batches = len(train_loader)
     
     #Create our loss and optimizer functions
@@ -122,12 +132,13 @@ def train(net, batch_size, n_epochs, learning_rate):
             
             #Wrap them in a Variable object
             inputs, labels = Variable(inputs), Variable(labels)
-            
+            inputs, labels = inputs.to(device), labels.to(device)
+
             #Set the parameter gradients to zero
             optimizer.zero_grad()
             
             #Forward pass, backward pass, optimize
-            outputs = net(inputs)
+            outputs = net.forward(inputs)
             loss_size = loss(outputs, labels)
             loss_size.backward()
             optimizer.step()
@@ -150,12 +161,22 @@ def train(net, batch_size, n_epochs, learning_rate):
             
             #Wrap tensors in Variables
             inputs, labels = Variable(inputs), Variable(labels)
+            inputs, labels = inputs.to(device), labels.to(device)
             
             #Forward pass
-            value_outputs = net(inputs)
+            value_outputs = net.forward(inputs)
             value_loss_size = loss(value_outputs, labels)
             total_val_loss += value_loss_size.data[0]
             
         print("Validation loss = {:.2f}".format(total_val_loss / len(validation_loader)))
         
     print("Training finished, took {:.2f}s".format(time.time() - training_start_time))
+
+if __name__ == "__main__":
+    trainingCSV = sys.argv[1]
+    valCSV = sys.argv[2]
+    testCSV = sys.argv[3]
+    CNN = ScoutCNN()
+    CNN.to(device)
+    train(CNN, batch_size=4, n_epochs=5, learning_rate=0.001, trainCSV=trainingCSV, valCSV=valCSV, testCSV=testCSV)
+    CNN.save_state_dict('training_4-27.pt')

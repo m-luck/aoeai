@@ -35,8 +35,6 @@ class UnitData(Dataset):
         # self.scout_arr = np.asarray(self.data_reference.iloc[:,6])
         # self.knight_arr = np.asarray(self.data_reference.iloc[:,7])
 
-
-
         self.data_len = len(self.data_reference.index)
         
     def __getitem__(self, index):
@@ -54,7 +52,7 @@ class UnitData(Dataset):
         # scout = self.scout_arr[index]
         # knight = self.knight_arr[index]
         selected = self.selected_arr[index]
-        scout_selected = if selected == SCOUT_B3 then 1 else 0
+        scout_selected = 1 if selected == SCOUT_B3 else 0
 
         x = self.x_label_arr[index]
         y = self.y_label_arr[index]
@@ -67,7 +65,7 @@ class UnitData(Dataset):
         '''
         return self.data_len
 
-if __name__ = '__main__':
+if __name__ == '__main__':
     unit_trials_1 = UnitClickData('../data/units_selected_batch1.csv')
     u1_loader = torch.utils.data.DataLoader(dataset=unit_trials_1, batch_size=4, shuffle=True)
 

@@ -11,6 +11,7 @@ pygame = "*"
 opencv-python = "*"
 beautifulsoup4 = "*"
 win32gui = "*"
+torch = "*"
 
 [requires]
 python_version = "3.7"
