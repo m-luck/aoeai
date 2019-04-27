@@ -4,11 +4,11 @@ from PIL import Image
 from torch.utils.data.dataset import Dataset
 from torchvision import transforms
 
-MAN_AT_ARMS = 
-PIKEMAN = 
-SKIRMISHER = 
-SCOUT = 
-KNIGHT = 
+# MAN_AT_ARMS = 
+# PIKEMAN = 
+# SKIRMISHER = 
+SCOUT_B3 = 396565680
+# KNIGHT = 
 
 class UnitData(Dataset):
     def __init__(self, csv_path):
@@ -54,12 +54,12 @@ class UnitData(Dataset):
         # scout = self.scout_arr[index]
         # knight = self.knight_arr[index]
         selected = self.selected_arr[index]
-        scout_selected = if selected = 
+        scout_selected = if selected == SCOUT_B3 then 1 else 0
 
         x = self.x_label_arr[index]
         y = self.y_label_arr[index]
         image_tensor = self.apply_transformations(image)
-        return (image_tensor, (x,y))
+        return (image_tensor, [x,y])
 
     def __len__(self):
         '''
