@@ -7,46 +7,57 @@ import time
 from torch.autograd import Variable
 from torch.utils.data.sampler import SubsetRandomSampler
 
-seed = 0xDEADBEEF
+seed = 0xDEADBEEF # Wagyu.
 
 np.random.seed(seed)
 torch.manual_seed(seed)
 
-transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
-train_set = torchvision.datasets.CIFAR10(root='./cifardata', train=True, download=True, transform=transform)
-test_set = torchvision.datasets.CIFAR10(root='./cifardata', train=False, download=True, transform=transform)
-
-classes = ('plane', 'car', 'bird', 'cat',
-           'deer', 'dog', 'frog', 'horse', 'ship', 'truck')
+select = ('NONE', 'MAN-AT-ARMS', 'PIKEMAN', 'SKIRMISHER', 'SCOUT', 'KNIGHT')
+x = None
+y = None
 
 #Training
 n_training_samples = 20000
 train_sampler = SubsetRandomSampler(np.arange(n_training_samples, dtype=np.int64))
 
 #Validation
-n_val_samples = 5000
+n_val_samples = 4000
 val_sampler = SubsetRandomSampler(np.arange(n_training_samples, n_training_samples + n_val_samples, dtype=np.int64))
 
 #Test
-n_test_samples = 5000
+n_test_samples = 4000
 test_sampler = SubsetRandomSampler(np.arange(n_test_samples, dtype=np.int64))
 
-class SimpleCNN(torch.nn.Module):
-    
-    #Our batch shape for input x is (3, 32, 32)
+class ScoutCNN(torch.nn.Module):
     
     def __init__(self):
         super(SimpleCNN, self).__init__()
         
-        #Input channels = 3, output channels = 18
-        self.conv1 = torch.nn.Conv2d(3, 18, kernel_size=3, stride=1, padding=1)
+        # Remember that image size is 256, 256. Grayscale, so 1 channel.
+        # Our batch shape for input is (1, 256, 256)
+        '''
+        The filter (of size kernel,kernel) scans over the image, and skips a pixel column each step.  
+        [ ][ ][*][*][*][ ]... 
+        [ ][ ][*][*][*][ ]...
+        [ ][ ][*][*][*][ ]...
+        [ ][ ][ ][ ][ ][ ]...
+        [ ][ ][ ][ ][ ][ ]
+        [ ][ ][ ][ ][ ][ ]
+         .  .  .  .  .  .
+         .  .  .  .  .  .
+         .  .  .  .  .  .
+        '''
+        # Image is grayscale (1 channel) and 64px x 64px. We choose 16 filter types. 
+        self.conv1 = torch.nn.Conv2d(1, 16, kernel_size=3, stride=2, padding=1)
+
+        #Pooling leads to 64x64 -> 32x32
         self.pool = torch.nn.MaxPool2d(kernel_size=2, stride=2, padding=0)
-        
-        #4608 input features, 64 output features (see sizing flow below)
-        self.fc1 = torch.nn.Linear(18 * 16 * 16, 64)
-        
-        #64 input features, 10 output features for our 10 defined classes
-        self.fc2 = torch.nn.Linear(64, 10)
+
+        # (16 conv filters * 32px * 32px) input features; choose 32 output features.
+        self.fc1 = torch.nn.Linear(16 * 32 * 32, 32)
+
+        # 32 input features from fc1; 2 output features for our x and y 
+        self.fc2 = torch.nn.Linear(32, 2)
         
     def forward(self, x):
         
@@ -60,7 +71,7 @@ class SimpleCNN(torch.nn.Module):
         #Reshape data to input to the input layer of the neural net
         #Size changes from (18, 16, 16) to (1, 4608)
         #Recall that the -1 infers this dimension from the other given dimension
-        x = x.view(-1, 18 * 16 *16)
+        x = x.view(-1, 16 * 32 *32)
         
         #Computes the activation of the first fully connected layer
         #Size changes from (1, 4608) to (1, 64)
@@ -69,35 +80,27 @@ class SimpleCNN(torch.nn.Module):
         #Computes the second fully connected layer (activation applied later)
         #Size changes from (1, 64) to (1, 10)
         x = self.fc2(x)
+
         return(x)
 
-def outputSize(in_size, kernel_size, stride, padding):
-    output = int((in_size - kernel_size + 2*(padding)) / stride) + 1
-    return(output)
+def get_loader(csv_path, batch_size):
+    '''
+    Takes in a dataset and batch size for loading. 
+    '''
+    unit_trials = UnitClickData(csv_path)
+    loader = torch.utils.data.DataLoader(dataset=unit_trials, batch_size=batch_size, shuffle=True, num_workers=2)
+    return(loader)
 
-
-#DataLoader takes in a dataset and a sampler for loading (num_workers deals with system level memory) 
-def get_train_loader(batch_size):
-    train_loader = torch.utils.data.DataLoader(train_set, batch_size=batch_size,
-                                           sampler=train_sampler, num_workers=2)
-    return(train_loader)
-
-#Test and validation loaders have constant batch sizes, so we can define them directly
-test_loader = torch.utils.data.DataLoader(test_set, batch_size=4, sampler=test_sampler, num_workers=2)
-val_loader = torch.utils.data.DataLoader(train_set, batch_size=128, sampler=val_sampler, num_workers=2)
+test_loader = get_loader(testset_csv, 4)
+validation_loader = get_loader(valset_csv, 128)
 
 def createLossAndOptimizer(net, learning_rate=0.001):
-    
-    #Loss function
     loss = torch.nn.CrossEntropyLoss()
-    
-    #Optimizer
     optimizer = optim.Adam(net.parameters(), lr=learning_rate)
-    
     return(loss, optimizer)
 
 
-def trainNet(net, batch_size, n_epochs, learning_rate):
+def train(net, batch_size, n_epochs, learning_rate):
     
     #Print all of the hyperparameters of the training iteration:
     print("===== HYPERPARAMETERS =====")
@@ -121,7 +124,7 @@ def trainNet(net, batch_size, n_epochs, learning_rate):
         
         running_loss = 0.0
         print_every = n_batches // 10
-        start_time = time.time()
+        epoch_start_time = time.time()
         total_train_loss = 0
         
         for i, data in enumerate(train_loader, 0):
@@ -161,10 +164,10 @@ def trainNet(net, batch_size, n_epochs, learning_rate):
             inputs, labels = Variable(inputs), Variable(labels)
             
             #Forward pass
-            val_outputs = net(inputs)
-            val_loss_size = loss(val_outputs, labels)
-            total_val_loss += val_loss_size.data[0]
+            value_outputs = net(inputs)
+            value_loss_size = loss(value_outputs, labels)
+            total_val_loss += value_loss_size.data[0]
             
-        print("Validation loss = {:.2f}".format(total_val_loss / len(val_loader)))
+        print("Validation loss = {:.2f}".format(total_val_loss / len(validation_loader)))
         
     print("Training finished, took {:.2f}s".format(time.time() - training_start_time))

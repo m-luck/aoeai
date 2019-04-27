@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+from PIL import Image
 from torch.utils.data.dataset import Dataset
 from torchvision import transforms
 
@@ -11,8 +12,11 @@ class UnitData(Dataset):
             img_path (string): path for image directory
         Where the initial logic is defined like reading a csv, assigning transforms etc.
         '''
+        self.resize_64 = transforms.Resize(size=64)
         self.to_tensor = transforms.ToTensor()
-        self.apply_transformations = transforms.Compose([self.to_tensor()])
+        self.normalize_rgb = transforms.Normalize(mean=([0.5]*3),std=([0.5]*3))
+        self.grayscale = torchvision.transforms.Grayscale()
+        self.apply_transformations = transforms.Compose([resize_64, to_tensor, normalize_rgb, grayscale])
         self.data_reference = pd.read_csv(csv_path, header=None)
         self.image_arr = np.asarray(self.data_reference.iloc[:,0])
         self.x_label_arr = np.asarray(self.data_reference.iloc[:,1])
@@ -44,7 +48,7 @@ class UnitData(Dataset):
         x = self.x_label_arr[index]
         y = self.y_label_arr[index]
         image_tensor = self.apply_transformations(image)
-        return ((image_tensor,selected), (x,y))
+        return (image_tensor, [x,y])
 
     def __len__(self):
         '''
