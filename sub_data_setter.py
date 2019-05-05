@@ -3,6 +3,7 @@ import pandas as pd
 from PIL import Image
 from torch.utils.data.dataset import Dataset
 from torchvision import transforms
+from torch import Tensor
 
 # MAN_AT_ARMS = 
 # PIKEMAN = 
@@ -10,7 +11,7 @@ from torchvision import transforms
 SCOUT_B3 = 396565680
 # KNIGHT = 
 
-class UnitData(Dataset):
+class UnitClickData(Dataset):
     def __init__(self, csv_path):
         '''
         Args:
@@ -20,9 +21,9 @@ class UnitData(Dataset):
         '''
         self.resize_64 = transforms.Resize(size=64)
         self.to_tensor = transforms.ToTensor()
-        self.normalize_rgb = transforms.Normalize(mean=([0.5]*3),std=([0.5]*3))
-        self.grayscale = torchvision.transforms.Grayscale()
-        self.apply_transformations = transforms.Compose([resize_64, to_tensor, normalize_rgb, grayscale])
+        self.normalize_rgb = transforms.Normalize(mean=([0.5]),std=([0.5]))
+        self.grayscale = transforms.Grayscale()
+        self.apply_transformations = transforms.Compose([self.resize_64, self.grayscale, self.to_tensor, self.normalize_rgb])
         self.data_reference = pd.read_csv(csv_path, header=None)
         self.image_arr = np.asarray(self.data_reference.iloc[:,0])
         self.x_label_arr = np.asarray(self.data_reference.iloc[:,1])
@@ -56,8 +57,10 @@ class UnitData(Dataset):
 
         x = self.x_label_arr[index]
         y = self.y_label_arr[index]
+        xy = Tensor((x, y))
         image_tensor = self.apply_transformations(image)
-        return (image_tensor, [x,y])
+        human_readable = image_name
+        return (image_tensor,xy,human_readable) 
 
     def __len__(self):
         '''

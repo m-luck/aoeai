@@ -1,10 +1,11 @@
 import numpy as np
 import sys
 import torch
-import torchvision
 import torch.nn.functional as F
 import torchvision.transforms as transforms
 import time
+import cv2
+import os
 from torch.autograd import Variable
 from torch.utils.data.sampler import SubsetRandomSampler
 
@@ -18,7 +19,6 @@ torch.manual_seed(seed)
 
 device = torch.device("cuda" if torch.cuda.is_available() 
                                   else "cpu")
-print(device)
 
 selected = ('NONE', 'MAN-AT-ARMS', 'PIKEMAN', 'SKIRMISHER', 'SCOUT', 'KNIGHT')
 x = None
@@ -50,7 +50,7 @@ class ScoutCNN(torch.nn.Module):
         self.pool = torch.nn.MaxPool2d(kernel_size=2, stride=2, padding=0)
 
         # (16 conv filters * 32px * 32px) input features; choose 32 output features.
-        self.fc1 = torch.nn.Linear(16 * 32 * 32, 32)
+        self.fc1 = torch.nn.Linear(16 * 16 * 16, 32)
 
         # 32 input features from fc1; 2 output features for our x and y 
         self.fc2 = torch.nn.Linear(32, 2)
@@ -65,16 +65,16 @@ class ScoutCNN(torch.nn.Module):
         x = self.pool(x)
         
         #Reshape data to input to the input layer of the neural net
-        #Size changes from (18, 16, 16) to (1, 4608)
+        #Size changes from (18, 16, 16) to (1, 4096)
         #Recall that the -1 infers this dimension from the other given dimension
-        x = x.view(-1, 16 * 32 *32)
+        x = x.view(-1, 16 * 16 * 16)
         
         #Computes the activation of the first fully connected layer
-        #Size changes from (1, 4608) to (1, 64)
+        #Size changes from (1, 4096) to (1, 32)
         x = F.relu(self.fc1(x))
         
         #Computes the second fully connected layer (activation applied later)
-        #Size changes from (1, 64) to (1, 10)
+        #Size changes from (1, 32) to (1, 2)
         x = self.fc2(x)
 
         return(x)
@@ -88,8 +88,8 @@ def get_loader(csv_path, batch_size):
     return(loader)
 
 def createLossAndOptimizer(net, learning_rate=0.001):
-    loss = torch.nn.CrossEntropyLoss()
-    optimizer = optim.Adam(net.parameters(), lr=learning_rate)
+    loss = torch.nn.SmoothL1Loss()
+    optimizer = torch.optim.Adam(net.parameters(), lr=learning_rate)
     return(loss, optimizer)
 
 
@@ -103,11 +103,9 @@ def train(net, batch_size, n_epochs, learning_rate, trainCSV, valCSV, testCSV):
     print("=" * 30)
     
     #Get training data
-    train_loader = get_train_loader(trainCSV, batch_size)
-    validation_loader = get_loader(valCSV, 128)
+    train_loader = get_loader(trainCSV, batch_size)
+    validation_loader = get_loader(valCSV, 4)
     test_loader = get_loader(testCSV, 4)
-
-    test_loader = get_loader(testset_csv, 4)
 
     n_batches = len(train_loader)
     
@@ -118,17 +116,18 @@ def train(net, batch_size, n_epochs, learning_rate, trainCSV, valCSV, testCSV):
     training_start_time = time.time()
     
     #Loop for n_epochs
+    print("Starting epochs...")
     for epoch in range(n_epochs):
-        
+        print("Epoch",epoch)
         running_loss = 0.0
         print_every = n_batches // 10
         epoch_start_time = time.time()
         total_train_loss = 0
+        start_time = time.time()
         
         for i, data in enumerate(train_loader, 0):
-            
             #Get inputs
-            inputs, labels = data
+            inputs, labels, natural = data
             
             #Wrap them in a Variable object
             inputs, labels = Variable(inputs), Variable(labels)
@@ -144,21 +143,21 @@ def train(net, batch_size, n_epochs, learning_rate, trainCSV, valCSV, testCSV):
             optimizer.step()
             
             #Print statistics
-            running_loss += loss_size.data[0]
-            total_train_loss += loss_size.data[0]
+            addedLoss = torch.Tensor.item(loss_size.data)
+            running_loss += addedLoss
+            total_train_loss += addedLoss
             
             #Print every 10th batch of an epoch
             if (i + 1) % (print_every + 1) == 0:
                 print("Epoch {}, {:d}% \t train_loss: {:.2f} took: {:.2f}s".format(
-                        epoch+1, int(100 * (i+1) / n_batches), running_loss / print_every, time.time() - start_time))
+                        epoch, int(100 * (i+1) / n_batches), running_loss / print_every, time.time() - start_time))
                 #Reset running loss and time
                 running_loss = 0.0
                 start_time = time.time()
             
         #At the end of the epoch, do a pass on the validation set
         total_val_loss = 0
-        for inputs, labels in val_loader:
-            
+        for j, (inputs, labels, natural) in enumerate(validation_loader):
             #Wrap tensors in Variables
             inputs, labels = Variable(inputs), Variable(labels)
             inputs, labels = inputs.to(device), labels.to(device)
@@ -166,7 +165,27 @@ def train(net, batch_size, n_epochs, learning_rate, trainCSV, valCSV, testCSV):
             #Forward pass
             value_outputs = net.forward(inputs)
             value_loss_size = loss(value_outputs, labels)
-            total_val_loss += value_loss_size.data[0]
+            if j == 0:
+                print(natural)
+                print(value_outputs)
+                print("vs")
+                print(labels)
+                example_img_path = natural[0]
+                example_prediction = (int(torch.IntTensor.item(value_outputs[0][0])), int(torch.IntTensor.item(value_outputs[0][1])))
+                example_ground = (int(torch.IntTensor.item(labels[0][0])), int(torch.IntTensor.item(labels[0][1])))
+                cv2.destroyAllWindows()
+                example_img_path = os.path.abspath(os.path.join(os.sep, 'aoeai',example_img_path))
+                print(example_img_path,example_prediction,example_ground)
+                img = cv2.imread(example_img_path)
+                window_width = int(img.shape[1])
+                window_height = int(img.shape[0])
+                cv2.namedWindow('dst_rt', cv2.WINDOW_NORMAL)
+                cv2.resizeWindow('dst_rt', window_width, window_height)
+                cv2.circle(img, example_prediction, 10, (255,0,0), thickness=1, lineType=8, shift=0)
+                cv2.imshow('dst_rt', img)
+                cv2.waitKey(1000)
+            addedLoss = torch.Tensor.item(value_loss_size.data)
+            total_val_loss += addedLoss
             
         print("Validation loss = {:.2f}".format(total_val_loss / len(validation_loader)))
         
@@ -178,5 +197,5 @@ if __name__ == "__main__":
     testCSV = sys.argv[3]
     CNN = ScoutCNN()
     CNN.to(device)
-    train(CNN, batch_size=4, n_epochs=5, learning_rate=0.001, trainCSV=trainingCSV, valCSV=valCSV, testCSV=testCSV)
-    CNN.save_state_dict('training_4-27.pt')
+    train(CNN, batch_size=4, n_epochs=200, learning_rate=0.001, trainCSV=trainingCSV, valCSV=valCSV, testCSV=testCSV)
+    torch.save(CNN.state_dict(),'training_4-27.pt')

@@ -62,9 +62,12 @@ if __name__ == "__main__":
         finished = False
         n = 1
         time.sleep(6) # Get situated!
-        monitor = {"top": 100, "left": 1664, "width": 256, "height": 256}
+        # monitor = {"top": 100, "left": 1664, "width": 256, "height": 256}
+        monitor = {"top": 100, "left": 1109, "width": 256, "height": 256}
         while n <= TRIALS:
-            x = random.randint(1664,1920)
+            # x = random.randint(1664,1920)
+            # y = random.randint(100,356)
+            x = random.randint(1109,1363)
             y = random.randint(100,356)
             #x = 1750
             #y = 200
@@ -79,7 +82,7 @@ if __name__ == "__main__":
             time.sleep(0.05)
             pyautogui.click()  
             timeStamp = time.strftime('%H-%M-%S')
-            x = x - 1664
+            x = x - 1109
             y = y - 100
             html = driver.page_source
             soup = BeautifulSoup(html, 'html.parser')
