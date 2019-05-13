@@ -12,3 +12,15 @@
 [0427/213051.853:ERROR:exception_snapshot_win.cc(98)] thread ID 7856 not found in process
 [0427/213606.277:ERROR:process_reader_win.cc(123)] NtOpenThread: {Access Denied} A process has requested access to an object, but has not been granted those access rights. (0xc0000022)
 [0427/213606.277:ERROR:exception_snapshot_win.cc(98)] thread ID 14860 not found in process
+[0505/191523.219:ERROR:process_reader_win.cc(123)] NtOpenThread: {Access Denied} A process has requested access to an object, but has not been granted those access rights. (0xc0000022)
+[0505/191523.220:ERROR:exception_snapshot_win.cc(98)] thread ID 9572 not found in process
+[0505/193149.541:ERROR:process_reader_win.cc(123)] NtOpenThread: {Access Denied} A process has requested access to an object, but has not been granted those access rights. (0xc0000022)
+[0505/193149.542:ERROR:exception_snapshot_win.cc(98)] thread ID 10932 not found in process
+[0505/201931.419:ERROR:process_reader_win.cc(123)] NtOpenThread: {Access Denied} A process has requested access to an object, but has not been granted those access rights. (0xc0000022)
+[0505/201931.420:ERROR:exception_snapshot_win.cc(98)] thread ID 2248 not found in process
+[0505/223335.028:ERROR:process_reader_win.cc(123)] NtOpenThread: {Access Denied} A process has requested access to an object, but has not been granted those access rights. (0xc0000022)
+[0505/223335.030:ERROR:exception_snapshot_win.cc(98)] thread ID 1180 not found in process
+[0506/100105.407:ERROR:process_reader_win.cc(123)] NtOpenThread: {Access Denied} A process has requested access to an object, but has not been granted those access rights. (0xc0000022)
+[0506/100105.409:ERROR:exception_snapshot_win.cc(98)] thread ID 6004 not found in process
+[0506/100105.435:ERROR:process_reader_win.cc(123)] NtOpenThread: {Access Denied} A process has requested access to an object, but has not been granted those access rights. (0xc0000022)
+[0506/100105.435:ERROR:exception_snapshot_win.cc(98)] thread ID 13832 not found in process

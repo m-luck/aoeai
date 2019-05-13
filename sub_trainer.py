@@ -181,13 +181,16 @@ def train(net, batch_size, n_epochs, learning_rate, trainCSV, valCSV, testCSV):
                 window_height = int(img.shape[0])
                 cv2.namedWindow('dst_rt', cv2.WINDOW_NORMAL)
                 cv2.resizeWindow('dst_rt', window_width, window_height)
-                cv2.circle(img, example_prediction, 10, (255,0,0), thickness=1, lineType=8, shift=0)
+                cv2.circle(img, example_prediction, 10, (100,0,255), thickness=4, lineType=8, shift=0)
                 cv2.imshow('dst_rt', img)
+                cv2.imwrite( "prediction_{0}.jpg".format(epoch), img );
                 cv2.waitKey(1000)
             addedLoss = torch.Tensor.item(value_loss_size.data)
             total_val_loss += addedLoss
             
         print("Validation loss = {:.2f}".format(total_val_loss / len(validation_loader)))
+        with open("valLoss",'a+') as f:
+            f.write("{:.2f}".format(total_val_loss / len(validation_loader)))
         
     print("Training finished, took {:.2f}s".format(time.time() - training_start_time))
 
@@ -197,5 +200,5 @@ if __name__ == "__main__":
     testCSV = sys.argv[3]
     CNN = ScoutCNN()
     CNN.to(device)
-    train(CNN, batch_size=4, n_epochs=200, learning_rate=0.001, trainCSV=trainingCSV, valCSV=valCSV, testCSV=testCSV)
+    train(CNN, batch_size=4, n_epochs=100, learning_rate=0.001, trainCSV=trainingCSV, valCSV=valCSV, testCSV=testCSV)
     torch.save(CNN.state_dict(),'training_4-27.pt')
