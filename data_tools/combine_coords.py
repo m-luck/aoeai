@@ -6,5 +6,6 @@ with open("COMBINED_DATA.csv", "w+") as to:
             for line in f:
                 time, j, data = line.split(':')
                 x,y,selected = data.split(',')
-                to.write("{time}:{j}:{x},{y},{selected}".format(time=time, j=count, x=x, y=y, selected=selected))
+                batch = str(sys.argv[i+1].split('_')[0])
+                to.write("{batch}:{time}:{j}:{x},{y},{selected}".format(time=time, j=j, x=x, y=y, selected=selected, batch=batch))
                 count += 1
