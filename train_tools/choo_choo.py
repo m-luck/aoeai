@@ -201,5 +201,5 @@ if __name__ == "__main__":
     testCSV = sys.argv[3]
     CNN = ScoutCNN()
     CNN.to(device)
-    train(CNN, batch_size=8, n_epochs=100, learning_rate=0.004, trainCSV=trainingCSV, valCSV=valCSV, testCSV=testCSV)
+    train(CNN, batch_size=128, n_epochs=100, learning_rate=0.004, trainCSV=trainingCSV, valCSV=valCSV, testCSV=testCSV)
     torch.save(CNN.state_dict(),'training_5-13.pt')
