@@ -8,7 +8,6 @@ from torch import Tensor
 # MAN_AT_ARMS = 
 # PIKEMAN = 
 # SKIRMISHER = 
-SCOUT = [242859360,
 # KNIGHT = 
 
 class UnitClickData(Dataset):

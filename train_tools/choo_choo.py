@@ -88,7 +88,7 @@ def get_loader(csv_path, batch_size):
     return(loader)
 
 def createLossAndOptimizer(net, learning_rate=0.001):
-    loss = torch.nn.SmoothL1Loss()
+    loss = torch.nn.MSELoss()
     optimizer = torch.optim.Adam(net.parameters(), lr=learning_rate)
     return(loss, optimizer)
 
@@ -104,7 +104,7 @@ def train(net, batch_size, n_epochs, learning_rate, trainCSV, valCSV, testCSV):
     
     #Get training data
     train_loader = get_loader(trainCSV, batch_size)
-    validation_loader = get_loader(valCSV, 4)
+    validation_loader = get_loader(valCSV, 32)
     test_loader = get_loader(testCSV, 4)
 
     n_batches = len(train_loader)
@@ -182,6 +182,7 @@ def train(net, batch_size, n_epochs, learning_rate, trainCSV, valCSV, testCSV):
                 cv2.namedWindow('dst_rt', cv2.WINDOW_NORMAL)
                 cv2.resizeWindow('dst_rt', window_width, window_height)
                 cv2.circle(img, example_prediction, 10, (100,0,255), thickness=4, lineType=8, shift=0)
+                cv2.circle(img, example_ground, 10, (200,100,5), thickness=4, lineType=8, shift=0)
                 cv2.imshow('dst_rt', img)
                 cv2.imwrite( "prediction_{0}.jpg".format(epoch), img );
                 cv2.waitKey(1000)
@@ -189,7 +190,7 @@ def train(net, batch_size, n_epochs, learning_rate, trainCSV, valCSV, testCSV):
             total_val_loss += addedLoss
             
         print("Validation loss = {:.2f}".format(total_val_loss / len(validation_loader)))
-        with open("valLoss",'a+') as f:
+        with open("valLoss",'w+') as f:
             f.write("{}:{:.2f}".format(epoch,total_val_loss / len(validation_loader)))
         
     print("Training finished, took {:.2f}s".format(time.time() - training_start_time))
@@ -200,5 +201,5 @@ if __name__ == "__main__":
     testCSV = sys.argv[3]
     CNN = ScoutCNN()
     CNN.to(device)
-    train(CNN, batch_size=4, n_epochs=100, learning_rate=0.001, trainCSV=trainingCSV, valCSV=valCSV, testCSV=testCSV)
-    torch.save(CNN.state_dict(),'training_4-27.pt')
+    train(CNN, batch_size=128, n_epochs=100, learning_rate=0.002, trainCSV=trainingCSV, valCSV=valCSV, testCSV=testCSV)
+    torch.save(CNN.state_dict(),'training_5-13.pt')

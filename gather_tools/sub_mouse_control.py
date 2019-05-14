@@ -15,7 +15,7 @@ from selenium import webdriver
 from bs4 import BeautifulSoup
 
 
-TRIALS = 10 ** 6 * 4
+TRIALS = 10 ** 5
 
 driver = webdriver.Chrome(executable_path='C:/chromedriver.exe')
 
@@ -79,7 +79,7 @@ if __name__ == "__main__":
             #pyautogui.screenshot(output,region=(1664,100, 256, 256))
             time.sleep(0.1)
             moveTo(x,y)
-            time.sleep(0.05)
+           
             pyautogui.click()  
             timeStamp = time.strftime('%H-%M-%S')
             x = x - 1109
@@ -89,6 +89,7 @@ if __name__ == "__main__":
             evolving = soup.find(id="evolving_value").get_text()
             file.write(timeStamp+":"+str(n)+":"+str(x)+","+str(y)+","+str(evolving)+"\n")
             print(output)        
+            time.sleep(0.3)
             n+=1
         file.close()
     # asyncio.run(main())
