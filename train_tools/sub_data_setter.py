@@ -8,7 +8,7 @@ from torch import Tensor
 # MAN_AT_ARMS = 
 # PIKEMAN = 
 # SKIRMISHER = 
-SCOUT_B3 = 242859360
+SCOUT = [242859360,
 # KNIGHT = 
 
 class UnitClickData(Dataset):
@@ -46,14 +46,8 @@ class UnitClickData(Dataset):
         '''
         image_name  = self.image_arr[index]
         image = Image.open(image_name)
-        # One-hot unit selected.
-        # man_at_arms = self.man_at_arms_arr[index]
-        # pikeman = self.pikeman_arr[index]
-        # skirmisher = self.skirmisher_arr[index]
-        # scout = self.scout_arr[index]
-        # knight = self.knight_arr[index]
-        selected = self.selected_arr[index]
-        scout_selected = 1 if selected == SCOUT_B3 else 0
+        # selected = self.selected_arr[index]
+        # scout_selected = 1 if selected in SCOUT else 0
 
         x = self.x_label_arr[index]
         y = self.y_label_arr[index]

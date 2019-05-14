@@ -5,9 +5,9 @@ path = sys.argv[1]
 from_row = int(sys.argv[2])
 to_row = from_row + int(sys.argv[3])
 
-train_name = 'train_image_x_y_selectedID.csv' 
-val_name = 'val_image_x_y_selectedID.csv' 
-test_name = 'test_x_y_selectedID.csv' 
+train_name = 'train.csv' 
+val_name = 'val.csv' 
+test_name = 'test.csv' 
 
 with open(str(path)) as f:
     with open(train_name, newline="\n", mode='w+') as out: 

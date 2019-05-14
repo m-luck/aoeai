@@ -190,7 +190,7 @@ def train(net, batch_size, n_epochs, learning_rate, trainCSV, valCSV, testCSV):
             
         print("Validation loss = {:.2f}".format(total_val_loss / len(validation_loader)))
         with open("valLoss",'a+') as f:
-            f.write("{:.2f}".format(total_val_loss / len(validation_loader)))
+            f.write("{}:{:.2f}".format(epoch,total_val_loss / len(validation_loader)))
         
     print("Training finished, took {:.2f}s".format(time.time() - training_start_time))
 
