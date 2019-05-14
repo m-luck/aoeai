@@ -88,7 +88,7 @@ def get_loader(csv_path, batch_size):
     return(loader)
 
 def createLossAndOptimizer(net, learning_rate=0.001):
-    loss = torch.nn.MSELoss()
+    loss = torch.nn.SmoothL1Loss()
     optimizer = torch.optim.Adam(net.parameters(), lr=learning_rate)
     return(loss, optimizer)
 
