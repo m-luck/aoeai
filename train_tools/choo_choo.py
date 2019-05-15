@@ -88,7 +88,7 @@ def get_loader(csv_path, batch_size):
     return(loader)
 
 def createLossAndOptimizer(net, learning_rate=0.001):
-    loss = torch.nn.SmoothL1Loss()
+    loss = torch.nn.MSELoss()
     optimizer = torch.optim.Adam(net.parameters(), lr=learning_rate)
     return(loss, optimizer)
 
@@ -201,5 +201,5 @@ if __name__ == "__main__":
     testCSV = sys.argv[3]
     CNN = ScoutCNN()
     CNN.to(device)
-    train(CNN, batch_size=4, n_epochs=100, learning_rate=0.004, trainCSV=trainingCSV, valCSV=valCSV, testCSV=testCSV)
+    train(CNN, batch_size=8, n_epochs=100, learning_rate=0.002, trainCSV=trainingCSV, valCSV=valCSV, testCSV=testCSV)
     torch.save(CNN.state_dict(),'training_5-13.pt')
